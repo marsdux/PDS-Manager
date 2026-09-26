@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="PDSManager" default="run" basedir=".">
+
+    <property name="src.dir"     value="src"/>
+    <property name="test.dir"    value="test"/>
+    <property name="build.dir"   value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="test.classes.dir" value="${build.dir}/test-classes"/>
+    <property name="dist.dir"    value="dist"/>
+    <property name="main.class"  value="com.pds.Main"/>
+
+    <target name="init">
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${test.classes.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+    <target name="compile" depends="init" description="Compile all sources">
+        <javac srcdir="${src.dir}" destdir="${classes.dir}"
+               includeantruntime="false" debug="true" encoding="UTF-8">
+            <compilerarg value="-Xlint:all"/>
+        </javac>
+    </target>
+
+    <target name="compile-test" depends="compile" description="Compile self-tests">
+        <javac srcdir="${test.dir}" destdir="${test.classes.dir}"
+               includeantruntime="false" debug="true" encoding="UTF-8">
+            <classpath path="${classes.dir}"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile" description="Build runnable jar">
+        <jar destfile="${dist.dir}/PDSManager.jar" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="compile" description="Run the application">
+        <java classname="${main.class}" fork="true" classpath="${classes.dir}"/>
+    </target>
+
+    <target name="test" depends="compile-test" description="Run the self-test smoke suite (no JUnit dependency)">
+        <java classname="com.pds.SelfTest" fork="true" classpath="${classes.dir}:${test.classes.dir}"
+              failonerror="true"/>
+    </target>
+
+    <target name="clean" description="Remove build artifacts">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+
+</project>
